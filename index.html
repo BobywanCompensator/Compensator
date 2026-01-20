@@ -23,41 +23,24 @@ h1,h2{
   color:#00FF66;
   text-shadow:0 0 6px rgba(120,255,220,.9),0 0 12px rgba(120,255,220,.6),0 0 18px rgba(120,255,220,.3);
 }
-#title-bar{
-  height:50px;
-  background:#000;
-}
+#title-bar{height:50px;background:#000}
 .layout{
   display:grid;
   grid-template-columns: calc(100vw - 460px) 460px;
   height: calc(100vh - 50px);
 }
-#map-container{
-  position: relative;
-  overflow:hidden;
-}
+#map-container{position:relative;overflow:hidden}
 #map-bg{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  pointer-events:none;
-  z-index:1;
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:contain;pointer-events:none;z-index:1
 }
 #galaxy{
-  position:relative;
-  z-index:3;
-  width:100%;
-  height:100%;
-  transform:scale(0.9);
-  transform-origin:center;
+  position:relative;z-index:3;width:100%;height:100%;
+  transform:scale(0.9);transform-origin:center
 }
 svg{width:100%;height:100%}
 .sector{
-  stroke:#9fffd0;
-  stroke-width:2;
-  fill-opacity:.35;
+  stroke:#9fffd0;stroke-width:2;fill-opacity:.35;
   cursor:pointer;
   filter:drop-shadow(0 0 6px rgba(120,255,220,.4))
 }
@@ -66,50 +49,27 @@ svg{width:100%;height:100%}
 .sector.Chaos{fill:#b02020}
 .sector.Xenos{fill:#2a8f55}
 .sector.Neutral{fill:#555}
-.sector.battle-hot{
-  animation:pulse 1.5s infinite;
-}
-@keyframes pulse{
-  0%{opacity:1}
-  50%{opacity:.4}
-  100%{opacity:1}
-}
+.sector.battle-hot{animation:pulse 1.5s infinite}
+@keyframes pulse{0%{opacity:1}50%{opacity:.4}100%{opacity:1}}
 .sector-label{
-  fill:#eafff6;
-  font-size:14px;
-  font-weight:bold;
-  text-anchor:middle;
-  pointer-events:none;
+  fill:#eafff6;font-size:14px;font-weight:bold;
+  text-anchor:middle;pointer-events:none
 }
 .journal-panel{
-  background:#021010;
-  border-left:2px solid #1c3b2f;
-  padding:12px;
-  display:flex;
-  flex-direction:column;
+  background:#021010;border-left:2px solid #1c3b2f;
+  padding:12px;display:flex;flex-direction:column
 }
-.right-top,.right-mid{
-  height:180px;
-  overflow:auto;
-}
-.right-bottom{
-  flex:1;
-  overflow:auto;
-}
+.right-top,.right-mid{height:180px;overflow:auto}
+.right-bottom{flex:1;overflow:auto}
 .journal-entry{
   border-bottom:1px dashed #1c3b2f;
-  padding:6px 0;
-  font-size:12px;
-  color:#00FF66;
+  padding:6px 0;font-size:12px;color:#00FF66
 }
 .bar{height:8px;background:#122;margin-bottom:6px}
 .bar>div{height:100%}
 select,button{
-  background:#020b0b;
-  color:#b7fff2;
-  border:1px solid #1c3b2f;
-  font-family:inherit;
-  font-size:12px;
+  background:#020b0b;color:#b7fff2;
+  border:1px solid #1c3b2f;font-family:inherit;font-size:12px
 }
 button{cursor:pointer}
 </style>
@@ -141,13 +101,13 @@ button{cursor:pointer}
 </div>
 
 <script>
-/* ================= UTILITAIRES ================= */
+/* ===== UTILITAIRES ===== */
 const rad=a=>a*Math.PI/180;
 const polar=(r,a)=>({x:r*Math.cos(rad(a)),y:r*Math.sin(rad(a))});
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 const factions=['Imperium','Chaos','Xenos'];
 
-/* ================= WARLORDS ================= */
+/* ===== WARLORDS ===== */
 const warlords=['Inconnu','Jo El-Johnson','Dacapala','Le Putride Grognon','Qui pour un TTS ce matin?'];
 const warlordStats={};
 warlords.forEach(w=>warlordStats[w]={win:0,loss:0});
@@ -157,7 +117,20 @@ function validWarlords(a,d){
   return a!==d;
 }
 
-/* ================= NARRATION ================= */
+function renderWarlords(){
+  const ws=document.getElementById('warlordStats');
+  ws.innerHTML='';
+  Object.entries(warlordStats)
+    .filter(([n])=>n!=='Inconnu')
+    .sort((a,b)=>b[1].win-a[1].win)
+    .forEach(([n,s])=>{
+      const d=document.createElement('div');
+      d.textContent=`${n} – V:${s.win} / D:${s.loss}`;
+      ws.appendChild(d);
+    });
+}
+
+/* ===== NARRATION ===== */
 const introA=['Les augures annoncent que','Sous un ciel déchiré par le Warp,','Les chroniques retiendront que'];
 const introB=['les forces de','les armées de','les légions de'];
 const introC=['ont affronté','ont écrasé','ont repoussé'];
@@ -170,14 +143,14 @@ function narrate(sector,atkW,defW,atkFaction,defFaction,atkWin){
   return [intro,result];
 }
 
-/* ================= GEOMETRIE ================= */
+/* ===== GEOMETRIE ===== */
 function sectorPath(r1,r2,a1,a2){
   const p1=polar(r2,a1),p2=polar(r2,a2),p3=polar(r1,a2),p4=polar(r1,a1);
   return `M ${p1.x} ${p1.y} A ${r2} ${r2} 0 0 1 ${p2.x} ${p2.y}
           L ${p3.x} ${p3.y} A ${r1} ${r1} 0 0 0 ${p4.x} ${p4.y} Z`;
 }
 
-/* ================= DONNÉES ================= */
+/* ===== DONNÉES ===== */
 const sectorNames=[
 'ANUS ASTRALIS','LOSER PRIME','PAR KING','GOT CHA FISDEPUS',
 'REROLL SANCTUM','WYS IWYG I','SPHINCTER PRIME','ORIFICIUS SACRALIS',
@@ -189,11 +162,8 @@ const sectorNames=[
 const SCALE=0.85;
 const sectors=[{
   name:'TROU SALÉ DE LA CHOUINE ÉTERNELLE',
-  owner:'Neutral',
-  immutable:true,
-  isCenter:true,
-  r:90*SCALE,
-  battles:0
+  owner:'Neutral',immutable:true,isCenter:true,
+  r:90*SCALE,battles:0
 }];
 
 function makeRing(r1,r2,count){
@@ -216,7 +186,7 @@ makeRing(90,190,3);
 makeRing(190,320,6);
 makeRing(320,500,9);
 
-/* ================= RENDU ================= */
+/* ===== RENDU ===== */
 function render(){
   const svg=document.getElementById('galaxy');
   svg.innerHTML='';
@@ -232,12 +202,21 @@ function render(){
       p.setAttribute('class','sector '+s.owner+(s.battles>=5?' battle-hot':''));
       p.onclick=()=>openBattleConsole(s);
       svg.appendChild(p);
+
+      // LABEL DU SECTEUR
+      const pos=polar((s.r1+s.r2)/2,(s.a1+s.a2)/2);
+      const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x',pos.x);
+      t.setAttribute('y',pos.y);
+      t.setAttribute('class','sector-label');
+      t.textContent=s.name;
+      svg.appendChild(t);
     }
   });
   updateFactionBars();
 }
 
-/* ================= BARRES ================= */
+/* ===== BARRES ===== */
 function updateFactionBars(){
   const fb=document.getElementById('factionBars');
   fb.innerHTML='';
@@ -254,7 +233,7 @@ function updateFactionBars(){
   });
 }
 
-/* ================= CONSOLE ================= */
+/* ===== CONSOLE ===== */
 function openBattleConsole(sector){
   if(sector.immutable) return;
   const j=document.getElementById('journal');
@@ -279,18 +258,25 @@ function openBattleConsole(sector){
     const oldOwner=sector.owner;
     sector.owner=atkFaction;
     sector.battles++;
+    warlordStats[atk].win++;
+    warlordStats[def].loss++;
     j.prepend(document.createTextNode(narrate(sector,atk,def,atkFaction,oldOwner,true).join(' ')));
-    render();
+    render();renderWarlords();
   };
   e.querySelector('.dwin').onclick=()=>{
+    const atk=e.querySelector('.atk').value;
+    const def=e.querySelector('.def').value;
     sector.battles++;
-    j.prepend(document.createTextNode(narrate(sector,'','', '',sector.owner,false).join(' ')));
-    render();
+    warlordStats[atk].loss++;
+    warlordStats[def].win++;
+    j.prepend(document.createTextNode(narrate(sector,atk,def,'',sector.owner,false).join(' ')));
+    render();renderWarlords();
   };
   j.prepend(e);
 }
 
 render();
+renderWarlords();
 </script>
 </body>
 </html>
