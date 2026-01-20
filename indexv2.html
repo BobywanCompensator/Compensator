@@ -190,6 +190,21 @@ const rad=a=>a*Math.PI/180;
 const polar=(r,a)=>({x:r*Math.cos(rad(a)),y:r*Math.sin(rad(a))});
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 const factions=['Imperium','Chaos','Xenos'];
+function loadPersistentJournal() {
+  const entries = DataModel.journal()
+    .slice()
+    .reverse(); // plus récent en haut
+
+  const j = document.getElementById('journal');
+  j.innerHTML = '';
+
+  entries.forEach(e => {
+    const div = document.createElement('div');
+    div.className = 'journal-entry';
+    div.textContent = `[${e.date}] ${e.text}`;
+    j.appendChild(div);
+  });
+}
 
 // ===== NARRATION =====
 const introA=['Les augures annoncent une tempête de feu alors que','Dans un fracas de lames et de bolters,','Sous un ciel déchiré par le Warp,','Les astropathes hurlent quand','Les chroniques impériales retiendront que'];
@@ -387,7 +402,13 @@ function openBattleConsole(sector){const journal=document.getElementById('journa
 }
 
 // ===== JOURNAL =====
-let journalQueue=[],writing=false;function addJournal(lines){journalQueue.push(lines);if(!writing)processJournal();}
+let journalQueue=[],writing=false;function addJournal(lines){journalQueue.push(lines);if(!writing)processJournal();e.dataset.unsaved = "true";
+e.style.opacity = "0.7";const tag = document.createElement('span');
+tag.textContent = ' [LOCAL]';
+tag.style.color = '#ffaa66';
+e.prepend(tag);
+
+}
 function processJournal(){if(!journalQueue.length){writing=false;return;}writing=true;const lines=journalQueue.shift();const j=document.getElementById('journal');const e=document.createElement('div');e.className='journal-entry';j.prepend(e);const full=[`[${new Date().toLocaleString()}]`,...lines];let i=0,l=0,cur;(function type(){if(i>=full.length){writing=false;return;}if(!cur){cur=document.createElement('div');cur.textContent='> ';e.appendChild(cur);}if(l<full[i].length){cur.textContent+=full[i][l++];}else{i++;l=0;cur=null;}setTimeout(type,15);})();}
 
 render();
@@ -401,6 +422,7 @@ CSVLoader.subscribe(() => {
   render();
   renderWarlords();
   updateFactionBars();
+  loadPersistentJournal();
 });
 
 
