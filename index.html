@@ -201,7 +201,7 @@ function narrate(sector,atkW,defW,atkFaction,defFaction,attackerWon){
 }
 
 // ===== WARLORDS =====
-const warlords=['Inconnu','Jo El-Johnson','Seigneur Beta','Le Putride Grognon','Le seigneur Absent'];
+const warlords=['Inconnu','Jo El-Johnson','Dacapala','Le Putride Grognon','Qui pour un TTS ce matin?'];
 const warlordStats={};
 warlords.forEach(w=>warlordStats[w]={win:0,loss:0});
 function updateWarlordStats(w,win){if(w==='Inconnu')return;win?warlordStats[w].win++:warlordStats[w].loss++;renderWarlords();}
@@ -215,28 +215,28 @@ function drawHudText(svg){['NOYAU','ANNEAU I','ANNEAU II','ANNEAU III'].forEach(
 // ===== DONNEES =====
 const sectorNames = [
   'ANUS ASTRALIS',
-  'LA FENTE DU WARP',
-  'COURONNE DE L’INFÂMIE',
-  'LE NOYAU PROFANÉ',
-  'LA ROSACE DU NÉANT',
-  'PUITS DE L’HUMILIATION',
+  'LOSER PRIME',
+  'PAR KING',
+  'GOT CHA FISDEPUS',
+  'REROLL SANCTUM',
+  'WYS IWYG 1',
   'SPHINCTER PRIME',
-  'L’ORIFICE SACRÉ',
-  'LE FOND DE TOUT',
-  'FAILLE DE L’IGNOMINIE',
-  'TRÔNE POSTÉRIEUR',
-  'SILLON DE DAMNATION',
-  'LA PORTE QUI NE PARDONNE PAS',
-  'LÀ OÙ TOUT FINIT',
-  'L’ŒIL QUI NE REGARDE PAS',
-  'FOSSE DU MAUVAIS CHOIX',
-  'SANCTUM DE LA HONTE',
+  'ORIFICIUS SACRALIS',
+  'CHAR ZADOUZ',
+  'EJACTUS PRECOR',
+  'PRE PHUS TRANCHIS',
+  'SILLON KIPUS',
+  'CHATUS COCUS',
+  'DACAPREPUS',
+  'DEFAITIS CONTESTATUS',
+  'MALA LANUS,
+  'SALIS ETERNUM,
   'RELIQUA POSTERIOR',
-  'LE SILENCE ANNULAIRE',
+  'TESSUR?',
   'ULTIMA FISSURA'
 ];
 const SCALE_MAP=0.85;
-const sectors=[{name:'TROU BÉNI DE SLAANESH',owner:'Neutral',immutable:true,isCenter:true,r:90*SCALE_MAP,battles:0}];
+const sectors=[{name:'TROU SALÉ DE LA CHOUINE ETERNELLE',owner:'Neutral',immutable:true,isCenter:true,r:90*SCALE_MAP,battles:0}];
 function makeRing(r1,r2,count){r1*=SCALE_MAP; r2*=SCALE_MAP;let w=[],t=0;for(let i=0;i<count;i++){const v=1+(Math.random()*2-1)*.15;w.push(v);t+=v;}let a=Math.random()*360;for(let i=0;i<count;i++){const s=360*(w[i]/t);sectors.push({name:sectorNames[sectors.length%sectorNames.length],owner:factions[i%3],r1,r2,a1:a,a2:a+s,battles:0});a+=s;}}
 makeRing(90,190,3);makeRing(190,320,6);makeRing(320,500,9);
 
