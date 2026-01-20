@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <title>Carte Galactique – Campagne COMPENSATOR</title>
+
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 body{
@@ -24,32 +25,16 @@ h1,h2{
 }
 #title-bar{
   height:50px;
-  width:100%;
-  flex-shrink:0;
-  background-image:url('https://i.imgur.com/vQkK685.png');
-  background-size:contain;
-  background-position:center;
-  background-repeat:no-repeat;
+  background:#000;
 }
-#title-bar img{
-  height:100%;
-  width:auto;
-  object-fit:contain;
-  display:block;
-}
-h2{font-size:14px;margin:14px 0 6px}
 .layout{
   display:grid;
   grid-template-columns: calc(100vw - 460px) 460px;
   height: calc(100vh - 50px);
-  overflow:hidden;
 }
-
 #map-container{
   position: relative;
-  overflow: hidden;
-  background-color: #02030a;
-  height: 100%;
+  overflow:hidden;
 }
 #map-bg{
   position:absolute;
@@ -57,120 +42,95 @@ h2{font-size:14px;margin:14px 0 6px}
   width:100%;
   height:100%;
   object-fit:contain;
-  object-position:center center;
   pointer-events:none;
   z-index:1;
 }
 #galaxy{
-  position: relative;
-  z-index: 3;
-  width: 100%;
-  height: 100%;
-  transform: scale(0.95, 0.85);
-  transform-origin: center;
-}
-#sector-overlay{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;z-index:2;opacity:0.9}
-#galaxy{
-  position: relative;
-  z-index: 3;
-  width: 100%;
-  height: 100%;
-  /* réduction du diamètre de la carte de 10% */
-  transform: scale(0.9);
-  transform-origin: center;
+  position:relative;
+  z-index:3;
+  width:100%;
+  height:100%;
+  transform:scale(0.9);
+  transform-origin:center;
 }
 svg{width:100%;height:100%}
-.sector{stroke:#9fffd0;stroke-width:2;fill-opacity:.35;cursor:pointer;filter:drop-shadow(0 0 6px rgba(120,255,220,.4))}
+.sector{
+  stroke:#9fffd0;
+  stroke-width:2;
+  fill-opacity:.35;
+  cursor:pointer;
+  filter:drop-shadow(0 0 6px rgba(120,255,220,.4))
+}
 .sector:hover{fill-opacity:.6;stroke:#fff}
-.sector.Imperium{fill:#2a4fff}.sector.Chaos{fill:#b02020}.sector.Xenos{fill:#2a8f55}.sector.Neutral{fill:#555}
-.sector-label{fill:#eafff6;font-size:14px;font-weight:bold;text-anchor:middle;pointer-events:none;text-shadow:0 0 6px rgba(180,255,230,.8),0 0 12px rgba(180,255,230,.4)}
-.battle-hot{animation:pulse 1.5s infinite;fill:#ffddb0;text-shadow:0 0 8px #ff9966}
-@keyframes pulse{0%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.2)}100%{opacity:1;transform:scale(1)}}
-.hud-text{fill:#9fffd0;font-size:12px;letter-spacing:2px;pointer-events:none}
-.journal-panel{
-  background:linear-gradient(180deg,rgba(5,20,20,.95),rgba(0,10,10,.98));
-  border-left:2px solid #1c3b2f;
-  padding:12px;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-  color:#9fffd0;
-  text-shadow:0 0 4px rgba(120,255,200,.6),0 0 8px rgba(120,255,200,.35);
+.sector.Imperium{fill:#2a4fff}
+.sector.Chaos{fill:#b02020}
+.sector.Xenos{fill:#2a8f55}
+.sector.Neutral{fill:#555}
+.sector.battle-hot{
+  animation:pulse 1.5s infinite;
 }
-.right-top{
-  height:180px;
-  flex:none;
-  overflow:auto;
-  background-image:url('https://i.imgur.com/wXy4Uu5.png');
-  background-size:100% 100%;
-  background-position:center;
-  background-repeat:no-repeat;
-  padding:22px 18px 16px 18px; /* zone texte calée dans l'écran */
-  box-sizing:border-box;
+@keyframes pulse{
+  0%{opacity:1}
+  50%{opacity:.4}
+  100%{opacity:1}
 }
-
-.right-mid{
-  height:180px;
-  flex:none;
-  overflow:auto;
-  background-image:url('https://i.imgur.com/fJxgv20.png');
-  background-size:100% 100%;
-  background-position:center;
-  background-repeat:no-repeat;
-  position:relative;
-  padding:22px 18px 16px 18px; /* zone texte calée dans l'écran */
-  box-sizing:border-box;
-}
-
-.right-mid::before{
-  content:'';
-  position:absolute;
-  inset:0;
-  background:rgba(0,0,0,0.25); /* assure la lisibilité */
+.sector-label{
+  fill:#eafff6;
+  font-size:14px;
+  font-weight:bold;
+  text-anchor:middle;
   pointer-events:none;
 }
-
+.journal-panel{
+  background:#021010;
+  border-left:2px solid #1c3b2f;
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+}
+.right-top,.right-mid{
+  height:180px;
+  overflow:auto;
+}
 .right-bottom{
   flex:1;
-  overflow-y:auto;
-  background-image:url('https://i.imgur.com/sqnKcHd.png');
-  background-size:100% 100%;
-  background-position:center;
-  background-repeat:no-repeat;
-  position:relative;
-  padding:26px 20px 20px 20px; /* journal plus respirant */
-  box-sizing:border-box;
+  overflow:auto;
 }
-
 .journal-entry{
   border-bottom:1px dashed #1c3b2f;
   padding:6px 0;
   font-size:12px;
   color:#00FF66;
-  text-shadow:0 0 3px rgba(120,255,200,.7),0 0 6px rgba(120,255,200,.4);
 }
-.bar{height:8px;background:#122;margin-bottom:6px;position:relative}
+.bar{height:8px;background:#122;margin-bottom:6px}
 .bar>div{height:100%}
-select,button{background:#020b0b;color:#b7fff2;border:1px solid #1c3b2f;font-family:inherit;font-size:12px;margin:2px 0}
-button{cursor:pointer;padding:4px 8px}
-button:hover{background:#0a2a2a}
-body::after{content:'';position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.015),rgba(0,0,0,.02) 2px,rgba(0,0,0,.04) 4px);mix-blend-mode:overlay}
+select,button{
+  background:#020b0b;
+  color:#b7fff2;
+  border:1px solid #1c3b2f;
+  font-family:inherit;
+  font-size:12px;
+}
+button{cursor:pointer}
 </style>
 </head>
+
 <body>
 <div id="title-bar"></div>
+
 <div class="layout">
-  <div id="map-container">
-  <img id="map-bg" src="https://i.imgur.com/KwrORx4.png" alt="">
-  <svg id="galaxy" viewBox="-520 -520 1040 1040"></svg>
+<div id="map-container">
+<img id="map-bg" src="https://i.imgur.com/KwrORx4.png" alt="">
+<svg id="galaxy" viewBox="-520 -520 1040 1040"></svg>
 </div>
-  <div class="journal-panel">
+
+<div class="journal-panel">
   <div class="right-top">
     <h2>Contrôle Galactique</h2>
     <div id="factionBars"></div>
   </div>
   <div class="right-mid">
-    <h2>Classement des Seigneurs de Guerre</h2>
+    <h2>Classement des Seigneurs</h2>
     <div id="warlordStats"></div>
   </div>
   <div class="right-bottom">
@@ -179,168 +139,158 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;background:rep
   </div>
 </div>
 </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-<script src="assets/js/csv-loader.js"></script>
+
 <script>
-// ===== UTILITAIRES =====
+/* ================= UTILITAIRES ================= */
 const rad=a=>a*Math.PI/180;
 const polar=(r,a)=>({x:r*Math.cos(rad(a)),y:r*Math.sin(rad(a))});
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 const factions=['Imperium','Chaos','Xenos'];
 
-// ===== NARRATION =====
-const introA=['Les augures annoncent une tempête de feu alors que','Dans un fracas de lames et de bolters,','Sous un ciel déchiré par le Warp,','Les astropathes hurlent quand','Les chroniques impériales retiendront que'];
-const introA2=['au seuil de l’anéantissement,','dans un grondement apocalyptique,','alors que la galaxie retient son souffle,','au cœur d’une guerre sans fin,','dans une spirale de violence absolue,'];
-const introB=['les forces menées par','les armées commandées par','les légions sous l’égide de','les cohortes rassemblées par','les guerriers fanatisés de'];
-const introC=['se sont jetées dans la bataille contre','ont engagé un affrontement brutal avec','ont croisé le fer avec','ont lancé un assaut désespéré sur','ont été stoppées net par'];
-const outcomeWin=['remporte une victoire éclatante, laissant le sol couvert de débris et de cadavres.','écrase toute résistance et inscrit son nom dans le sang et l’acier.','triomphe dans une débauche de violence et de gloire.','s’impose après un massacre d’une ampleur rarement vue.','anéantit l’ennemi et s’empare du secteur dans les flammes.'];
-const outcomeDef=['repousse l’assaillant dans une défense héroïque.','tient la ligne malgré des pertes effroyables.','brise l’offensive ennemie au prix d’un carnage sans nom.','transforme le champ de bataille en charnier pour l’ennemi.','sauve le secteur dans une ultime démonstration de détermination.'];
-function narrate(sector,atkW,defW,atkFaction,defFaction,attackerWon){
- const intro=`${pick(introA)} ${pick(introA2)} ${pick(introB)} ${atkW} ${pick(introC)} ${defW}.`;
- const result=attackerWon?`${atkFaction} ${pick(outcomeWin)}`:`${defFaction} ${pick(outcomeDef)}`;
- return [intro,result];
-}
-
-// ===== WARLORDS =====
+/* ================= WARLORDS ================= */
 const warlords=['Inconnu','Jo El-Johnson','Dacapala','Le Putride Grognon','Qui pour un TTS ce matin?'];
 const warlordStats={};
 warlords.forEach(w=>warlordStats[w]={win:0,loss:0});
-function updateWarlordStats(w,win){if(w==='Inconnu')return;win?warlordStats[w].win++:warlordStats[w].loss++;renderWarlords();}
-function renderWarlords(){const ws=document.getElementById('warlordStats');ws.innerHTML='';Object.entries(warlordStats).filter(([n])=>n!=='Inconnu').sort((a,b)=>b[1].win-a[1].win).forEach(([n,s])=>{const d=document.createElement('div');d.textContent=`${n} – V: ${s.win} / D: ${s.loss}`;ws.appendChild(d);});}
 
-// ===== GEOMETRIE =====
-function sectorPath(r1,r2,a1,a2){const p1=polar(r2,a1),p2=polar(r2,a2),p3=polar(r1,a2),p4=polar(r1,a1);return `M ${p1.x} ${p1.y} A ${r2} ${r2} 0 0 1 ${p2.x} ${p2.y} L ${p3.x} ${p3.y} A ${r1} ${r1} 0 0 0 ${p4.x} ${p4.y} Z`;}
-function drawHudRings(svg){[90,190,320,500].forEach(r=>{const c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('cx',0);c.setAttribute('cy',0);c.setAttribute('r',r);c.setAttribute('fill','none');c.setAttribute('stroke','rgba(150,255,230,.2)');c.setAttribute('stroke-dasharray','6 8');svg.appendChild(c);});}
-function drawHudText(svg){['NOYAU','ANNEAU I','ANNEAU II','ANNEAU III'].forEach((txt,i)=>{const r=[45,140,255,410][i];const id='p'+i;const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('id',id);p.setAttribute('d',`M ${-r} 0 A ${r} ${r} 0 1 1 ${r} 0`);p.setAttribute('fill','none');svg.appendChild(p);const t=document.createElementNS('http://www.w3.org/2000/svg','text');t.setAttribute('class','hud-text');const tp=document.createElementNS('http://www.w3.org/2000/svg','textPath');tp.setAttributeNS('http://www.w3.org/1999/xlink','href','#'+id);tp.setAttribute('startOffset','25%');tp.textContent=txt;t.appendChild(tp);svg.appendChild(t);});}
+function validWarlords(a,d){
+  if(a==='Inconnu'||d==='Inconnu') return true;
+  return a!==d;
+}
 
-// ===== DONNEES =====
-const sectorNames = [
-  'ANUS ASTRALIS',
-  'LOSER PRIME',
-  'PAR KING',
-  'GOT CHA FISDEPUS',
-  'REROLL SANCTUM',
-  'WYS IWYG 1',
-  'SPHINCTER PRIME',
-  'ORIFICIUS SACRALIS',
-  'CHAR ZADOUZ',
-  'EJACTUS PRECOR',
-  'PRE PHUS TRANCHIS',
-  'SILLON KIPUS',
-  'CHATUS COCUS',
-  'DACAPREPUS',
-  'DEFAITIS CONTESTATUS',
-  'MALA LANUS,
-  'SALIS ETERNUM',
-  'RELIQUA POSTERIOR',
-  'TESSUR?',
-  'ULTIMA FISSURA'
+/* ================= NARRATION ================= */
+const introA=['Les augures annoncent que','Sous un ciel déchiré par le Warp,','Les chroniques retiendront que'];
+const introB=['les forces de','les armées de','les légions de'];
+const introC=['ont affronté','ont écrasé','ont repoussé'];
+
+function narrate(sector,atkW,defW,atkFaction,defFaction,atkWin){
+  const intro=`${pick(introA)} ${pick(introB)} ${atkW} ${pick(introC)} ${defW}.`;
+  const result=atkWin
+    ? `${atkFaction} s’empare du secteur.`
+    : `${defFaction} conserve le contrôle.`;
+  return [intro,result];
+}
+
+/* ================= GEOMETRIE ================= */
+function sectorPath(r1,r2,a1,a2){
+  const p1=polar(r2,a1),p2=polar(r2,a2),p3=polar(r1,a2),p4=polar(r1,a1);
+  return `M ${p1.x} ${p1.y} A ${r2} ${r2} 0 0 1 ${p2.x} ${p2.y}
+          L ${p3.x} ${p3.y} A ${r1} ${r1} 0 0 0 ${p4.x} ${p4.y} Z`;
+}
+
+/* ================= DONNÉES ================= */
+const sectorNames=[
+'ANUS ASTRALIS','LOSER PRIME','PAR KING','GOT CHA FISDEPUS',
+'REROLL SANCTUM','WYS IWYG I','SPHINCTER PRIME','ORIFICIUS SACRALIS',
+'CHAR ZADOUZ','EJACTUS PRECOR','PRE PHUS TRANCHIS','SILLON KIPUS',
+'CHATUS COCUS','DACAPREPUS','DEFAITIS CONTESTATUS','MALA LANUS',
+'SALIS ETERNUM','RELIQUA POSTERIOR','TESSUR?','ULTIMA FISSURA'
 ];
-const SCALE_MAP=0.85;
-const sectors=[{name:'TROU SALÉ DE LA CHOUINE ETERNELLE',owner:'Neutral',immutable:true,isCenter:true,r:90*SCALE_MAP,battles:0}];
-function makeRing(r1,r2,count){r1*=SCALE_MAP; r2*=SCALE_MAP;let w=[],t=0;for(let i=0;i<count;i++){const v=1+(Math.random()*2-1)*.15;w.push(v);t+=v;}let a=Math.random()*360;for(let i=0;i<count;i++){const s=360*(w[i]/t);sectors.push({name:sectorNames[sectors.length%sectorNames.length],owner:factions[i%3],r1,r2,a1:a,a2:a+s,battles:0});a+=s;}}
-makeRing(90,190,3);makeRing(190,320,6);makeRing(320,500,9);
 
-// ===== REGLES =====
-function validWarlords(a,d){return a==='Inconnu'||d==='Inconnu'||a!==d;}
+const SCALE=0.85;
+const sectors=[{
+  name:'TROU SALÉ DE LA CHOUINE ÉTERNELLE',
+  owner:'Neutral',
+  immutable:true,
+  isCenter:true,
+  r:90*SCALE,
+  battles:0
+}];
 
-// ===== INTERACTION =====
-function clickSector(sector){if(sector.immutable){addJournal(['COGITATOR ERROR… PROTOCOL DENIED…']);return;}openBattleConsole(sector);}
-
-// ===== RENDU =====
-function render(){const svg=document.getElementById('galaxy');svg.innerHTML='';drawHudRings(svg);drawHudText(svg);sectors.forEach(s=>{
-  if(s.isCenter){
-    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
-    c.setAttribute('cx',0);c.setAttribute('cy',0);c.setAttribute('r',s.r);
-    c.setAttribute('class','sector '+s.owner);
-    c.onclick=()=>clickSector(s);
-    svg.appendChild(c);
-    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
-    t.setAttribute('class','sector-label');
-    t.textContent=s.name;
-    svg.appendChild(t);
-  } else {
-    const p=document.createElementNS('http://www.w3.org/2000/svg','path');
-    p.setAttribute('d',sectorPath(s.r1,s.r2,s.a1,s.a2));
-    p.setAttribute('class','sector '+s.owner);
-    p.onclick=()=>clickSector(s);
-    svg.appendChild(p);
-    const pos=polar((s.r1+s.r2)/2,(s.a1+s.a2)/2);
-    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
-    t.setAttribute('x',pos.x);
-    t.setAttribute('y',pos.y);
-    t.setAttribute('class','sector-label');
-    t.textContent=s.name;
-    const sub=document.createElementNS('http://www.w3.org/2000/svg','tspan');
-    sub.setAttribute('x',pos.x);
-    sub.setAttribute('dy','1.2em');
-    sub.textContent=`⚔ ${s.battles}`;
-    if(s.battles>=5){sub.setAttribute('class','battle-hot');}
-    t.appendChild(sub);
-    svg.appendChild(t);
+function makeRing(r1,r2,count){
+  r1*=SCALE; r2*=SCALE;
+  let w=[],t=0;
+  for(let i=0;i<count;i++){let v=1+(Math.random()-.5)*.3;w.push(v);t+=v;}
+  let a=Math.random()*360;
+  for(let i=0;i<count;i++){
+    let s=360*(w[i]/t);
+    sectors.push({
+      name:sectorNames[sectors.length%sectorNames.length],
+      owner:factions[i%3],
+      r1,r2,a1:a,a2:a+s,
+      battles:0
+    });
+    a+=s;
   }
-});updateFactionBars();}
+}
+makeRing(90,190,3);
+makeRing(190,320,6);
+makeRing(320,500,9);
 
-// ===== BARRES =====
-const factionStyles = {
-  Imperium: {
-    label: 'IMPERIUM',
-    gradient: 'linear-gradient(90deg,#00FF66 0%,#6BFFB3 50%,#00FF66 100%)'
-  },
-  Chaos: {
-    label: 'CHAOS',
-    gradient: 'linear-gradient(90deg,#00CC55 0%,#33AA66 50%,#00CC55 100%)'
-  },
-  Xenos: {
-    label: 'XENOS',
-    gradient: 'linear-gradient(90deg,#66FFAA 0%,#B6FFE0 50%,#66FFAA 100%)'
-  }
-};
+/* ================= RENDU ================= */
+function render(){
+  const svg=document.getElementById('galaxy');
+  svg.innerHTML='';
+  sectors.forEach(s=>{
+    if(s.isCenter){
+      const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('r',s.r);
+      c.setAttribute('class','sector '+s.owner);
+      svg.appendChild(c);
+    }else{
+      const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+      p.setAttribute('d',sectorPath(s.r1,s.r2,s.a1,s.a2));
+      p.setAttribute('class','sector '+s.owner+(s.battles>=5?' battle-hot':''));
+      p.onclick=()=>openBattleConsole(s);
+      svg.appendChild(p);
+    }
+  });
+  updateFactionBars();
+}
+
+/* ================= BARRES ================= */
 function updateFactionBars(){
-  const fb = document.getElementById('factionBars');
-  fb.innerHTML = '';
-
-  const total = sectors.filter(s => !s.isCenter).length;
-
-  factions.forEach(f => {
-    const own = sectors.filter(s => s.owner === f).length;
-    const style = factionStyles[f];
-
-    // Texte console avec glyphe (méthode 4)
-    const row = document.createElement('div');
-    row.textContent = style.label;
-    row.style.letterSpacing = '2px';
-    row.style.marginTop = '6px';
-    fb.appendChild(row);
-
-    // Barre
-    const bar = document.createElement('div');
-    bar.className = 'bar';
-
-    const fill = document.createElement('div');
-    fill.style.width = (own / total * 100) + '%';
-    fill.style.background = style.gradient;
-    fill.style.boxShadow = '0 0 6px rgba(0,255,102,.6)';
-
+  const fb=document.getElementById('factionBars');
+  fb.innerHTML='';
+  const total=sectors.filter(s=>!s.isCenter).length;
+  factions.forEach(f=>{
+    const own=sectors.filter(s=>s.owner===f).length;
+    const bar=document.createElement('div');
+    bar.className='bar';
+    const fill=document.createElement('div');
+    fill.style.width=(own/total*100)+'%';
+    fill.style.background='#00FF66';
     bar.appendChild(fill);
-    fb.appendChild(bar);
+    fb.append(f,bar);
   });
 }
 
-// ===== CONSOLE DE BATAILLE =====
-function openBattleConsole(sector){const journal=document.getElementById('journal');const panel=document.createElement('div');panel.className='journal-entry';const attackers=factions.filter(f=>f!==sector.owner);panel.innerHTML=`<div>&gt; ENGAGEMENT – ${sector.name}</div><div>DÉFENSEUR (${sector.owner})</div><select class="defWl">${warlords.map(w=>`<option>${w}</option>`).join('')}</select><div>ATTAQUANT</div><select class="atkFaction">${attackers.map(f=>`<option>${f}</option>`).join('')}</select><select class="atkWl">${warlords.map(w=>`<option>${w}</option>`).join('')}</select><br><button class="atkWin">Victoire Attaquant</button><button class="defWin">Défenseur Tient</button><button class="cancel">Annuler</button>`;
- panel.querySelector('.cancel').onclick=()=>panel.remove();
- panel.querySelector('.atkWin').onclick=()=>{const atkW=panel.querySelector('.atkWl').value;const defW=panel.querySelector('.defWl').value;if(!validWarlords(atkW,defW)){alert('Seigneurs identiques');return;}const atkFaction=panel.querySelector('.atkFaction').value;sector.owner=atkFaction;sector.battles++;updateWarlordStats(atkW,true);updateWarlordStats(defW,false);panel.remove();render();addJournal(narrate(sector,atkW,defW,atkFaction,sector.owner,true));};
- panel.querySelector('.defWin').onclick=()=>{const atkW=panel.querySelector('.atkWl').value;const defW=panel.querySelector('.defWl').value;sector.battles++;updateWarlordStats(atkW,false);updateWarlordStats(defW,true);panel.remove();addJournal(narrate(sector,atkW,defW,'',sector.owner,false));};
- journal.prepend(panel);
+/* ================= CONSOLE ================= */
+function openBattleConsole(sector){
+  if(sector.immutable) return;
+  const j=document.getElementById('journal');
+  const e=document.createElement('div');
+  e.className='journal-entry';
+  const attackers=factions.filter(f=>f!==sector.owner);
+  e.innerHTML=`
+  > ENGAGEMENT – ${sector.name}<br>
+  Défenseur (${sector.owner})<br>
+  <select class="def">${warlords.map(w=>`<option>${w}</option>`).join('')}</select><br>
+  Attaquant<br>
+  <select class="atkF">${attackers.map(f=>`<option>${f}</option>`).join('')}</select>
+  <select class="atk">${warlords.map(w=>`<option>${w}</option>`).join('')}</select><br>
+  <button class="awin">Victoire Attaquant</button>
+  <button class="dwin">Défenseur Tient</button>
+  `;
+  e.querySelector('.awin').onclick=()=>{
+    const atk=e.querySelector('.atk').value;
+    const def=e.querySelector('.def').value;
+    if(!validWarlords(atk,def)) return;
+    const atkFaction=e.querySelector('.atkF').value;
+    const oldOwner=sector.owner;
+    sector.owner=atkFaction;
+    sector.battles++;
+    j.prepend(document.createTextNode(narrate(sector,atk,def,atkFaction,oldOwner,true).join(' ')));
+    render();
+  };
+  e.querySelector('.dwin').onclick=()=>{
+    sector.battles++;
+    j.prepend(document.createTextNode(narrate(sector,'','', '',sector.owner,false).join(' ')));
+    render();
+  };
+  j.prepend(e);
 }
 
-// ===== JOURNAL =====
-let journalQueue=[],writing=false;function addJournal(lines){journalQueue.push(lines);if(!writing)processJournal();}
-function processJournal(){if(!journalQueue.length){writing=false;return;}writing=true;const lines=journalQueue.shift();const j=document.getElementById('journal');const e=document.createElement('div');e.className='journal-entry';j.prepend(e);const full=[`[${new Date().toLocaleString()}]`,...lines];let i=0,l=0,cur;(function type(){if(i>=full.length){writing=false;return;}if(!cur){cur=document.createElement('div');cur.textContent='> ';e.appendChild(cur);}if(l<full[i].length){cur.textContent+=full[i][l++];}else{i++;l=0;cur=null;}setTimeout(type,15);})();}
-
-render();renderWarlords();
+render();
 </script>
 </body>
 </html>
