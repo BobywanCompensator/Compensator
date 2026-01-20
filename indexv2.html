@@ -182,6 +182,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;background:rep
 </div>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script src="assets/js/csv-loader.js"></script>
+<script src="assets/js/data-model.js"></script>
+<script src="assets/js/stats-engine.js"></script>
 <script>
 // ===== UTILITAIRES =====
 const rad=a=>a*Math.PI/180;
@@ -207,7 +209,22 @@ const warlords=['Inconnu','Jo El-Johnson','Dacapala','Le Putride Grognon','Qui p
 const warlordStats={};
 warlords.forEach(w=>warlordStats[w]={win:0,loss:0});
 function updateWarlordStats(w,win){if(w==='Inconnu')return;win?warlordStats[w].win++:warlordStats[w].loss++;renderWarlords();}
-function renderWarlords(){const ws=document.getElementById('warlordStats');ws.innerHTML='';Object.entries(warlordStats).filter(([n])=>n!=='Inconnu').sort((a,b)=>b[1].win-a[1].win).forEach(([n,s])=>{const d=document.createElement('div');d.textContent=`${n} – V: ${s.win} / D: ${s.loss}`;ws.appendChild(d);});}
+function renderWarlords() {
+  const ws = document.getElementById('warlordStats');
+  ws.innerHTML = '';
+
+  const warlordsCsv = DataModel.warlords();
+  const scores = StatsEngine.getWarlordScores();
+
+  warlordsCsv.forEach(w => {
+    const wins = scores[w.id] || 0;
+    const record = StatsEngine.getWarlordRecord(w.id);
+
+    const d = document.createElement('div');
+    d.textContent = `${w.name} – V:${record.wins} / D:${record.losses}`;
+    ws.appendChild(d);
+  });
+}
 
 // ===== GEOMETRIE =====
 function sectorPath(r1,r2,a1,a2){const p1=polar(r2,a1),p2=polar(r2,a2),p3=polar(r1,a2),p4=polar(r1,a1);return `M ${p1.x} ${p1.y} A ${r2} ${r2} 0 0 1 ${p2.x} ${p2.y} L ${p3.x} ${p3.y} A ${r1} ${r1} 0 0 0 ${p4.x} ${p4.y} Z`;}
@@ -239,7 +256,44 @@ const sectorNames = [
 ];
 const SCALE_MAP=0.85;
 const sectors=[{name:'TROU SALÉ DE LA CHOUINE ETERNELLE',owner:'Neutral',immutable:true,isCenter:true,r:90*SCALE_MAP,battles:0}];
-function makeRing(r1,r2,count){r1*=SCALE_MAP; r2*=SCALE_MAP;let w=[],t=0;for(let i=0;i<count;i++){const v=1+(Math.random()*2-1)*.15;w.push(v);t+=v;}let a=Math.random()*360;for(let i=0;i<count;i++){const s=360*(w[i]/t);sectors.push({name:sectorNames[sectors.length%sectorNames.length],owner:factions[i%3],r1,r2,a1:a,a2:a+s,battles:0});a+=s;}}
+function mapSectorIds() {
+  const csvSectors = DataModel.sectors();
+
+  sectors.forEach((s, i) => {
+    const match = csvSectors.find(cs => cs.name === s.name);
+    if (match) {
+      s.id = match.id;
+    } else {
+      s.id = `AUTO_${i}`; // fallback visuel
+    }
+  });
+}
+function syncSectorOwners() {
+  const csvSectors = DataModel.sectors();
+
+  sectors.forEach(s => {
+    const cs = csvSectors.find(c => c.id === s.id);
+    if (!cs) return;
+
+    const map = {
+      IMP: 'Imperium',
+      CHA: 'Chaos',
+      XEN: 'Xenos',
+      NEU: 'Neutral'
+    };
+
+    s.owner = map[cs.owner] || 'Neutral';
+  });
+}
+function syncSectorBattles() {
+  const counts = StatsEngine.getBattlesPerSector();
+
+  sectors.forEach(s => {
+    s.battles = counts[s.id] || 0;
+  });
+}
+
+  function makeRing(r1,r2,count){r1*=SCALE_MAP; r2*=SCALE_MAP;let w=[],t=0;for(let i=0;i<count;i++){const v=1+(Math.random()*2-1)*.15;w.push(v);t+=v;}let a=Math.random()*360;for(let i=0;i<count;i++){const s=360*(w[i]/t);sectors.push({name:sectorNames[sectors.length%sectorNames.length],owner:factions[i%3],r1,r2,a1:a,a2:a+s,battles:0});a+=s;}}
 makeRing(90,190,3);makeRing(190,320,6);makeRing(320,500,9);
 
 // ===== REGLES =====
@@ -297,36 +351,32 @@ const factionStyles = {
     gradient: 'linear-gradient(90deg,#66FFAA 0%,#B6FFE0 50%,#66FFAA 100%)'
   }
 };
-function updateFactionBars(){
+function updateFactionBars() {
   const fb = document.getElementById('factionBars');
   fb.innerHTML = '';
 
-  const total = sectors.filter(s => !s.isCenter).length;
+  const progress = StatsEngine.getFactionProgress();
 
-  factions.forEach(f => {
-    const own = sectors.filter(s => s.owner === f).length;
-    const style = factionStyles[f];
-
-    // Texte console avec glyphe (méthode 4)
+  Object.values(progress).forEach(f => {
     const row = document.createElement('div');
-    row.textContent = style.label;
+    row.textContent = f.name.toUpperCase();
     row.style.letterSpacing = '2px';
     row.style.marginTop = '6px';
     fb.appendChild(row);
 
-    // Barre
     const bar = document.createElement('div');
     bar.className = 'bar';
 
     const fill = document.createElement('div');
-    fill.style.width = (own / total * 100) + '%';
-    fill.style.background = style.gradient;
-    fill.style.boxShadow = '0 0 6px rgba(0,255,102,.6)';
+    fill.style.width = f.percent + '%';
+    fill.style.background = f.color;
+    fill.style.boxShadow = `0 0 6px ${f.color}`;
 
     bar.appendChild(fill);
     fb.appendChild(bar);
   });
 }
+
 
 // ===== CONSOLE DE BATAILLE =====
 function openBattleConsole(sector){const journal=document.getElementById('journal');const panel=document.createElement('div');panel.className='journal-entry';const attackers=factions.filter(f=>f!==sector.owner);panel.innerHTML=`<div>&gt; ENGAGEMENT – ${sector.name}</div><div>DÉFENSEUR (${sector.owner})</div><select class="defWl">${warlords.map(w=>`<option>${w}</option>`).join('')}</select><div>ATTAQUANT</div><select class="atkFaction">${attackers.map(f=>`<option>${f}</option>`).join('')}</select><select class="atkWl">${warlords.map(w=>`<option>${w}</option>`).join('')}</select><br><button class="atkWin">Victoire Attaquant</button><button class="defWin">Défenseur Tient</button><button class="cancel">Annuler</button>`;
@@ -340,7 +390,23 @@ function openBattleConsole(sector){const journal=document.getElementById('journa
 let journalQueue=[],writing=false;function addJournal(lines){journalQueue.push(lines);if(!writing)processJournal();}
 function processJournal(){if(!journalQueue.length){writing=false;return;}writing=true;const lines=journalQueue.shift();const j=document.getElementById('journal');const e=document.createElement('div');e.className='journal-entry';j.prepend(e);const full=[`[${new Date().toLocaleString()}]`,...lines];let i=0,l=0,cur;(function type(){if(i>=full.length){writing=false;return;}if(!cur){cur=document.createElement('div');cur.textContent='> ';e.appendChild(cur);}if(l<full[i].length){cur.textContent+=full[i][l++];}else{i++;l=0;cur=null;}setTimeout(type,15);})();}
 
-render();renderWarlords();
+render();
+
+// Quand les CSV sont chargés → on met à jour l’UI
+CSVLoader.subscribe(() => {
+  mapSectorIds();
+  syncSectorOwners();
+  syncSectorBattles();
+
+  render();
+  renderWarlords();
+  updateFactionBars();
+});
+
+
+// Lancement du chargement CSV
+CSVLoader.loadAll();
+
 </script>
 </body>
 </html>
