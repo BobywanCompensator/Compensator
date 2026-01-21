@@ -23,10 +23,24 @@ h1,h2{
   color:#00FF66;
   text-shadow:0 0 6px rgba(120,255,220,.9),0 0 12px rgba(120,255,220,.6),0 0 18px rgba(120,255,220,.3);
 }
-#title-bar{height:50px;background:#000}
+#title-bar{
+  height:50px;
+  width:100%;
+  flex-shrink:0;
+  background-image:url('https://i.imgur.com/vQkK685.png');
+  background-size:contain;
+  background-position:center;
+  background-repeat:no-repeat;
+}
+#title-bar img{
+  height:100%;
+  width:auto;
+  object-fit:contain;
+  display:block;
+}
 .layout{
   display:grid;
-  grid-template-columns: calc(100vw - 460px) 460px;
+  grid-template-columns: 1fr 460px;
   height: calc(100vh - 50px);
 }
 #map-container{position:relative;overflow:hidden}
@@ -40,38 +54,114 @@ h1,h2{
 }
 svg{width:100%;height:100%}
 .sector{
-  stroke:#9fffd0;stroke-width:2;fill-opacity:.35;
+  stroke:#9fffd0;
+  stroke-width:2;
+  fill-opacity:.35;
   cursor:pointer;
-  filter:drop-shadow(0 0 6px rgba(120,255,220,.4))
+  filter:drop-shadow(0 0 6px rgba(120,255,220,.4));
+}
+.sector.old{
+  fill-opacity:.18;
+  stroke-dasharray:4 4;
+  filter:none;
+}
+.sector.contested{
+  stroke-width:3;
+  filter:drop-shadow(0 0 12px rgba(255,120,120,.9));
 }
 .sector:hover{fill-opacity:.6;stroke:#fff}
-.sector.Imperium{fill:#2a4fff}
-.sector.Chaos{fill:#b02020}
-.sector.Xenos{fill:#2a8f55}
+.sector.Imperium{fill:#2a4fff;} /* bleu impérial */
+.sector.Chaos{fill:#b02020;}    /* rouge chaos */
+.sector.Xenos{fill:#2a8f55;}    /* vert xenos */
 .sector.Neutral{fill:#555}
 .sector.battle-hot{animation:pulse 1.5s infinite}
 @keyframes pulse{0%{opacity:1}50%{opacity:.4}100%{opacity:1}}
 .sector-label{
-  fill:#eafff6;font-size:14px;font-weight:bold;
-  text-anchor:middle;pointer-events:none
+  fill:#eafff6;
+  font-size:14px; /* plus grand */
+  font-weight:bold;
+  text-anchor:middle;
+  dominant-baseline:middle;
+  pointer-events:none;
+  paint-order:stroke;
+  stroke:#000;
+  stroke-width:2px;
+  stroke-opacity:0.6;
+}
+.sector-label tspan{dominant-baseline:middle;}
+.sector-label tspan{dominant-baseline:middle;}
+.sector-count{
+  fill:#00FF66;
+  font-size:12px;
+  text-anchor:middle;
+  pointer-events:none;
 }
 .journal-panel{
-  background:#021010;border-left:2px solid #1c3b2f;
-  padding:12px;display:flex;flex-direction:column
+  background:#021010;
+  border-left:2px solid #1c3b2f;
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  overflow-y:scroll; /* scrollbar toujours présent pour éviter les sauts */
 }
-.right-top,.right-mid{height:180px;overflow:auto}
-.right-bottom{flex:1;overflow:auto}
+.right-top{
+  height:180px;
+  flex:none;
+  overflow:auto;
+  background-image:url('https://i.imgur.com/wXy4Uu5.png');
+  background-size:100% 100%;
+  background-position:center;
+  background-repeat:no-repeat;
+  padding:22px 18px 16px 18px; /* zone texte calée dans l'écran */
+  box-sizing:border-box;
+}
+
+.right-mid{
+  height:180px;
+  flex:none;
+  overflow:auto;
+  background-image:url('https://i.imgur.com/fJxgv20.png');
+  background-size:100% 100%;
+  background-position:center;
+  background-repeat:no-repeat;
+  position:relative;
+  padding:22px 18px 16px 18px; /* zone texte calée dans l'écran */
+  box-sizing:border-box;
+}
+
+.right-mid::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,0.25); /* assure la lisibilité */
+  pointer-events:none;
+}
+
+.right-bottom{
+  flex:1;
+  overflow-y:auto;
+  background-image:url('https://i.imgur.com/sqnKcHd.png');
+  background-size:100% 100%;
+  background-position:center;
+  background-repeat:no-repeat;
+  position:relative;
+  padding:26px 20px 20px 20px; /* journal plus respirant */
+  box-sizing:border-box;
+}
+
 .journal-entry{
   border-bottom:1px dashed #1c3b2f;
-  padding:6px 0;font-size:12px;color:#00FF66
+  padding:6px 0;
+  font-size:12px;
+  color:#00FF66;
+  text-shadow:0 0 3px rgba(120,255,200,.7),0 0 6px rgba(120,255,200,.4);
 }
-.bar{height:8px;background:#122;margin-bottom:6px}
+.bar{height:8px;background:#122;margin-bottom:6px;position:relative}
 .bar>div{height:100%}
-select,button{
-  background:#020b0b;color:#b7fff2;
-  border:1px solid #1c3b2f;font-family:inherit;font-size:12px
-}
-button{cursor:pointer}
+select,button{background:#020b0b;color:#b7fff2;border:1px solid #1c3b2f;font-family:inherit;font-size:12px;margin:2px 0}
+button{cursor:pointer;padding:4px 8px}
+button:hover{background:#0a2a2a}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.015),rgba(0,0,0,.02) 2px,rgba(0,0,0,.04) 4px);mix-blend-mode:overlay}
 </style>
 </head>
 
@@ -106,6 +196,7 @@ const rad=a=>a*Math.PI/180;
 const polar=(r,a)=>({x:r*Math.cos(rad(a)),y:r*Math.sin(rad(a))});
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 const factions=['Imperium','Chaos','Xenos'];
+let battleOpen=false; // verrou interaction carte
 
 /* ===== WARLORDS ===== */
 const warlords=['Inconnu','Jo El-Johnson','Dacapala','Le Putride Grognon','Qui pour un TTS ce matin?'];
@@ -131,16 +222,74 @@ function renderWarlords(){
 }
 
 /* ===== NARRATION ===== */
-const introA=['Les augures annoncent que','Sous un ciel déchiré par le Warp,','Les chroniques retiendront que'];
-const introB=['les forces de','les armées de','les légions de'];
-const introC=['ont affronté','ont écrasé','ont repoussé'];
+const introA=[
+  'Les augures annoncent que',
+  'Sous un ciel déchiré par le Warp,',
+  'Les chroniques impériales rapportent que',
+  'Les archives interdites mentionnent que',
+  'Dans le fracas des canons stellaires,',
+  'Alors que le Voile se déchirait,',
+  'Au terme d’omens sanglants,',
+  'Les vox antiques crépitent :',
+  'Les scribes du Mechanicus consignent que',
+  'Dans une tempête de feu et de prières,'
+];
+
+const introB=[
+  'les forces menées par',
+  'les cohortes commandées par',
+  'les légions placées sous l’autorité de',
+  'les armées rassemblées derrière',
+  'les guerriers fanatisés de',
+  'les osts belliqueux dirigés par',
+  'les détachements d’élite guidés par'
+];
+
+const introC=[
+  'se sont heurtées à',
+  'ont engagé le combat contre',
+  'ont croisé le fer avec',
+  'ont lancé l’assaut sur',
+  'ont défié sans pitié',
+  'ont affronté dans un carnage total'
+];
+
+const battleNames=[
+  'la Boucherie de',
+  'le Massacre de',
+  'la Purge de',
+  'le Siège de',
+  'l’Anéantissement de',
+  'la Dévastation de',
+  'le Cataclysme de',
+  'la Profanation de',
+  'la Guerre de',
+  'la Chute de'
+];
+
+const resultAtkWin=[
+  'Au terme d’un assaut implacable, {faction} triomphe et s’empare du secteur.',
+  '{faction} noie la zone sous le feu et revendique le contrôle total.',
+  'La résistance s’effondre : {faction} plante ses étendards victorieux.',
+  'Les défenseurs sont balayés. {faction} règne désormais sur ces étoiles.',
+  'Par le sang et l’acier, {faction} conquiert ce territoire.'
+];
+
+const resultDefWin=[
+  'Malgré les pertes, {faction} tient la ligne et conserve le secteur.',
+  'Les assauts sont brisés : {faction} demeure maître des lieux.',
+  'La défense tient bon. {faction} repousse l’ennemi.',
+  'Les envahisseurs sont anéantis. {faction} conserve le contrôle.',
+  'Le secteur reste inviolé sous la férule de {faction}.'
+];
 
 function narrate(sector,atkW,defW,atkFaction,defFaction,atkWin){
+  const title=`${pick(battleNames)} ${sector.name}`;
   const intro=`${pick(introA)} ${pick(introB)} ${atkW} ${pick(introC)} ${defW}.`;
   const result=atkWin
-    ? `${atkFaction} s’empare du secteur.`
-    : `${defFaction} conserve le contrôle.`;
-  return [intro,result];
+    ? pick(resultAtkWin).replace('{faction}',atkFaction)
+    : pick(resultDefWin).replace('{faction}',defFaction);
+  return [`[${title}]`,intro,result];
 }
 
 /* ===== GEOMETRIE ===== */
@@ -190,29 +339,80 @@ makeRing(320,500,9);
 function render(){
   const svg=document.getElementById('galaxy');
   svg.innerHTML='';
+
   sectors.forEach(s=>{
     if(s.isCenter){
       const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
       c.setAttribute('r',s.r);
       c.setAttribute('class','sector '+s.owner);
       svg.appendChild(c);
-    }else{
-      const p=document.createElementNS('http://www.w3.org/2000/svg','path');
-      p.setAttribute('d',sectorPath(s.r1,s.r2,s.a1,s.a2));
-      p.setAttribute('class','sector '+s.owner+(s.battles>=5?' battle-hot':''));
-      p.onclick=()=>openBattleConsole(s);
-      svg.appendChild(p);
 
-      // LABEL DU SECTEUR
-      const pos=polar((s.r1+s.r2)/2,(s.a1+s.a2)/2);
       const t=document.createElementNS('http://www.w3.org/2000/svg','text');
-      t.setAttribute('x',pos.x);
-      t.setAttribute('y',pos.y);
+      t.setAttribute('x',0);
+      t.setAttribute('y',0);
       t.setAttribute('class','sector-label');
-      t.textContent=s.name;
+      const words=s.name.split(' ');
+      if(words.length>2){
+        const mid=Math.ceil(words.length/2);
+        const lines=[words.slice(0,mid).join(' '),words.slice(mid).join(' ')];
+        lines.forEach((l,i)=>{
+          const sp=document.createElementNS('http://www.w3.org/2000/svg','tspan');
+          sp.setAttribute('x',0);
+          sp.setAttribute('dy',i===0?'-0.3em':'1.2em');
+          sp.textContent=l;
+          t.appendChild(sp);
+        });
+      }else{
+        t.textContent=s.name;
+      }
       svg.appendChild(t);
+      return;
+    }
+
+    const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d',sectorPath(s.r1,s.r2,s.a1,s.a2));
+    p.setAttribute('class','sector '+s.owner+(s.battles>4?' battle-hot':''));
+    p.onclick=()=>{
+      if(battleOpen) return;
+      openBattleConsole(s);
+    };
+    svg.appendChild(p);
+
+    const midA=(s.a1+s.a2)/2;
+    const midR=(s.r1+s.r2)/2;
+    const pos=polar(midR,midA);
+
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',pos.x);
+    t.setAttribute('y',pos.y);
+    t.setAttribute('class','sector-label');
+
+    const words=s.name.split(' ');
+    if(words.length>2){
+      const mid=Math.ceil(words.length/2);
+      const lines=[words.slice(0,mid).join(' '),words.slice(mid).join(' ')];
+      lines.forEach((l,i)=>{
+        const sp=document.createElementNS('http://www.w3.org/2000/svg','tspan');
+        sp.setAttribute('x',pos.x);
+        sp.setAttribute('dy',i===0?'-0.3em':'1.2em');
+        sp.textContent=l;
+        t.appendChild(sp);
+      });
+    }else{
+      t.textContent=s.name;
+    }
+    svg.appendChild(t);
+
+    if(s.battles>0){
+      const cpt=document.createElementNS('http://www.w3.org/2000/svg','text');
+      cpt.setAttribute('x',pos.x);
+      cpt.setAttribute('y',pos.y+14);
+      cpt.setAttribute('class','sector-count');
+      cpt.textContent=`⚔ ${s.battles}`;
+      svg.appendChild(cpt);
     }
   });
+
   updateFactionBars();
 }
 
@@ -227,7 +427,11 @@ function updateFactionBars(){
     bar.className='bar';
     const fill=document.createElement('div');
     fill.style.width=(own/total*100)+'%';
-    fill.style.background='#00FF66';
+    // Nuances de vert par faction (style cogitator)
+    fill.style.background =
+      f === 'Imperium' ? 'linear-gradient(90deg,#00ff66,#66ff99)' :
+      f === 'Chaos'    ? 'linear-gradient(90deg,#009944,#00cc55)' :
+                         'linear-gradient(90deg,#33ff88,#99ffcc)';
     bar.appendChild(fill);
     fb.append(f,bar);
   });
@@ -235,11 +439,16 @@ function updateFactionBars(){
 
 /* ===== CONSOLE ===== */
 function openBattleConsole(sector){
+  if(battleOpen) return;
   if(sector.immutable) return;
+  battleOpen=true;
+
   const j=document.getElementById('journal');
   const e=document.createElement('div');
   e.className='journal-entry';
+
   const attackers=factions.filter(f=>f!==sector.owner);
+
   e.innerHTML=`
   > ENGAGEMENT – ${sector.name}<br>
   Défenseur (${sector.owner})<br>
@@ -248,30 +457,63 @@ function openBattleConsole(sector){
   <select class="atkF">${attackers.map(f=>`<option>${f}</option>`).join('')}</select>
   <select class="atk">${warlords.map(w=>`<option>${w}</option>`).join('')}</select><br>
   <button class="awin">Victoire Attaquant</button>
-  <button class="dwin">Défenseur Tient</button>
+  <button class="dwin">Victoire Défenseur</button>
+  <button class="cancel">Annuler</button>
   `;
+
   e.querySelector('.awin').onclick=()=>{
     const atk=e.querySelector('.atk').value;
     const def=e.querySelector('.def').value;
     if(!validWarlords(atk,def)) return;
+
     const atkFaction=e.querySelector('.atkF').value;
     const oldOwner=sector.owner;
+
     sector.owner=atkFaction;
     sector.battles++;
     warlordStats[atk].win++;
     warlordStats[def].loss++;
-    j.prepend(document.createTextNode(narrate(sector,atk,def,atkFaction,oldOwner,true).join(' ')));
-    render();renderWarlords();
+
+    const lines=narrate(sector,atk,def,atkFaction,oldOwner,true);
+    const entry=document.createElement('div');
+    entry.className='journal-entry';
+    entry.innerHTML=`<div>${lines[0]}</div><div>${lines[1]}</div><div>${lines[2]}</div>`;
+    j.prepend(entry);
+
+    e.remove();
+    battleOpen=false;
+    render();
+    renderWarlords();
   };
+
   e.querySelector('.dwin').onclick=()=>{
     const atk=e.querySelector('.atk').value;
     const def=e.querySelector('.def').value;
+    if(!validWarlords(atk,def)) return;
+
+    const oldOwner=sector.owner;
+
     sector.battles++;
     warlordStats[atk].loss++;
     warlordStats[def].win++;
-    j.prepend(document.createTextNode(narrate(sector,atk,def,'',sector.owner,false).join(' ')));
-    render();renderWarlords();
+
+    const lines=narrate(sector,atk,def,'',oldOwner,false);
+    const entry=document.createElement('div');
+    entry.className='journal-entry';
+    entry.innerHTML=`<div>${lines[0]}</div><div>${lines[1]}</div><div>${lines[2]}</div>`;
+    j.prepend(entry);
+
+    e.remove();
+    battleOpen=false;
+    render();
+    renderWarlords();
   };
+
+  e.querySelector('.cancel').onclick=()=>{
+    e.remove();
+    battleOpen=false;
+  };
+
   j.prepend(e);
 }
 
